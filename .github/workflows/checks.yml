@@ -13,7 +13,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - run: python -m pip install .
       - run: python -m unittest discover -s tests -v
       - run: python -m incident_workbench demo --output-dir artifacts/ci-demo
       - run: python -c "import json; from pathlib import Path; actual=json.loads(Path('artifacts/ci-demo/results.json').read_text()); expected=json.loads(Path('docs/results.json').read_text()); assert actual == expected, 'Committed demo differs from current rules'"
+      - run: python web/build.py
+      - run: node --test web/test_worker_contract.mjs

@@ -4,9 +4,13 @@
 
 A local investigation desk that turns a bounded sequence of normalized security events into correlated cases, source evidence and specific human investigation steps. The core is deterministic and works offline. An optional loopback Ollama adapter can add an explicitly untrusted narrative without changing findings or taking actions.
 
+**[Open the live browser demo](https://bernardo-demier-ai-lab.fancy-fly-9200.chatgpt.site/incident-evidence-workbench/)** — paste or choose JSONL, analyze, filter cases and inspect evidence without an account or installation.
+
 ![Live investigation workspace](docs/screenshot.png)
 
-**Try the [computed standalone preview](docs/demo.html), or run the live UI below.** The preview supports case filters, evidence inspection and exports; new analysis requires the local server.
+The browser demo displays a computed synthetic example immediately. Clicking **Analyze evidence** downloads the pinned Pyodide Python runtime and runs the exact original `core.py` in a Web Worker. Event text is processed in the browser; there is no analysis backend or browser model integration. The first load needs a network connection and may take a minute. The hosting service and runtime CDN receive normal static-asset requests, but the app does not submit event text to them.
+
+The [computed standalone preview](docs/demo.html) remains available for offline inspection and exports; it does not analyze new input. The local Python UI below also remains fully supported. See [browser architecture and verification](web/README.md).
 
 ## Run in under a minute
 
@@ -80,11 +84,21 @@ The adapter does not install Ollama or download models. It sends only correlated
 
 A loopback endpoint verifies transport destination, **not where the daemon performs inference**. The operator must ensure the model and daemon are configured for on-device inference with cloud routing disabled. Cloud-marked model names are rejected, but aliases or a local proxy can still forward data. The current integration is verified against a local protocol stub only; **actual Ollama/model behavior and narrative quality are untested**. Valid schema and evidence IDs do not prevent incorrect statements, invented relationships or prompt injection in prose. See [the security and model boundary](docs/SECURITY_MODEL.md).
 
+## Build the static browser demo
+
+```sh
+python web/build.py
+```
+
+The deterministic build writes `web/dist/` (ignored), including the unmodified Python core, shared UI, computed example, fixed-code worker and SHA-256 asset manifest. All paths work beneath `/incident-evidence-workbench/`. Serve the build through HTTPS or localhost; opening `index.html` directly as a file cannot start the module worker. The browser runtime is pinned to Pyodide **314.0.7**, checked against the official project documentation. No JavaScript copy of the correlation rules exists.
+
 ## Verify
 
 ```sh
 python -m unittest discover -s tests -v
 python -m incident_workbench demo --output-dir artifacts/verified-demo
+python web/build.py
+node --test web/test_worker_contract.mjs
 ```
 
 Tests cover input normalization, duplicate and count limits, temporal/tenant/identity boundaries, evidence-span grouping, local HTTP Host/Origin/CSRF checks, allowlisted routes, report injection escaping, and local-stub narrative schema, references, timeout and redirect failures. CI is configured for Python 3.11–3.13; a configured matrix is not evidence that every job has already passed.
