@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Incident Evidence Workbench</title>
+<link rel="stylesheet" href="/style.css">
+<script src="/app.js" defer></script>
+</head>
+<body>
+<aside class="sidebar">
+  <a class="brand" href="#main" aria-label="Incident Evidence Workbench"><span class="brandmark">i<span>e</span></span><span>INCIDENT<span class="brand-sub">EVIDENCE WORKBENCH</span></span></a>
+  <div class="section-label">WORKSPACE</div>
+  <a href="#main" class="nav-item active"><span>▦</span> Investigation desk <span class="nav-count" id="nav-count">0</span></a>
+  <button class="nav-item" id="open-input"><span>↥</span> Analyze JSONL</button>
+  <a href="#method" class="nav-item"><span>◎</span> Detection boundaries</a>
+  <div class="sidebar-bottom"><div class="signal"><span></span> OFFLINE BY DEFAULT</div><p>Evidence first.<br>Human judgment always.</p><div class="version">RULESET 1.0 <span>•</span> FOUR CORRELATIONS</div></div>
+</aside>
+<div class="workspace">
+<header class="topbar"><div>WORKSPACE <span>/</span> LOCAL INVESTIGATION</div><div class="session-state" id="mode"><i></i> Starting local session</div></header>
+<main id="main">
+<div class="heading"><div><div class="eyebrow">DEFENSIVE SECURITY · TRIAGE</div><h1>Investigate the sequence.</h1><p class="lead">Connected signals. Traceable evidence. A clearer next step.</p></div><div class="heading-actions"><button class="button secondary" id="export-json" disabled>↓ Export JSON</button><button class="button primary" id="export-report" disabled>↓ Evidence report</button></div></div>
+<div class="notice"><span class="notice-icon">✳</span><div><strong id="source-label">Investigation workspace</strong><span id="source-note">Deterministic correlations — no model is running. Findings are hypotheses for review.</span></div><button id="load-example" class="text-button">Reload example ↗</button></div>
+<p id="status" class="status" role="status" aria-live="polite">Preparing evidence workspace…</p>
+<div class="metrics" aria-label="Analysis summary"><div class="metric"><span>UNIQUE EVENTS</span><strong id="stat-events">—</strong><small>Normalized &amp; fingerprinted</small></div><div class="metric"><span>CORRELATED CASES</span><strong id="stat-cases">—</strong><small>Grouped by tenant &amp; identity</small></div><div class="metric"><span>HIGH PRIORITY</span><strong id="stat-high">—</strong><small>Investigation recommended</small></div><div class="metric"><span>EVIDENCE COVERAGE</span><strong id="stat-coverage">—</strong><small>Findings linked to source events</small></div></div>
+<section class="investigations" aria-label="Investigation workspace"><div class="queue panel"><div class="panel-heading"><h2>Case queue</h2><span id="queue-count" class="muted">0 cases</span></div><div class="queue-tools"><input id="search" type="search" placeholder="Find identity, tenant, or signal…" aria-label="Search cases"><select id="severity" aria-label="Filter severity"><option value="all">All priorities</option><option value="high">High priority</option><option value="medium">Medium priority</option></select></div><div id="case-list"></div><div class="queue-foot">Rule findings indicate a pattern, not a confirmed breach.</div></div>
+<div id="detail" class="detail panel" aria-live="polite"><div class="empty"><span>◎</span><h2>Evidence will appear here</h2><p>Analyze the synthetic example to explore a correlated case.</p></div></div></section>
+<section class="method" id="method"><div><span class="eyebrow">KNOW THE BOUNDARY</span><h2>Explainable rules. Bounded conclusions.</h2><p>Four correlations use explicit identities, session context, source IPs and fixed time windows. No learned baseline, attribution, external enrichment or automated response.</p></div><div class="method-items"><p><b>01</b> Failure burst → authentication</p><p><b>02</b> Authentication → privileged role</p><p><b>03</b> Token source transition</p><p><b>04</b> Authentication → restricted data</p></div></section>
+<footer><span>INCIDENT EVIDENCE WORKBENCH <b> / </b> Defensive review workspace</span><span id="fingerprint">No input fingerprint yet</span></footer>
+</main>
+</div>
+<dialog id="input-dialog"><div class="dialog-head"><div><div class="eyebrow">LOCAL ANALYSIS</div><h2>Bring the sequence into focus.</h2></div><button class="close" id="close-input" aria-label="Close input">×</button></div><p>Paste normalized JSONL. Up to 256 KiB, 1,000 event lines, 4 KiB per line. Analysis is ephemeral; export explicitly to keep a copy.</p><label for="jsonl">Security events <span>one JSON object per line</span></label><textarea id="jsonl" spellcheck="false" aria-describedby="input-help"></textarea><div id="input-help" class="input-help">Use the bundled example as the schema reference. Token IDs are labels, never secrets.</div><div class="dialog-actions"><label class="button secondary file-button">Choose JSONL file<input type="file" id="file-input" accept=".jsonl,.ndjson,.txt"></label><span id="input-size"></span><button id="analyze" class="button primary">Analyze evidence →</button></div><p id="input-error" role="alert" class="error"></p></dialog>
+</body>
+</html>

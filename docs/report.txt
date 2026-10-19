@@ -1,0 +1,90 @@
+INCIDENT EVIDENCE WORKBENCH
+Deterministic rule findings; human review required.
+Input SHA-256: e314e348e9c5241b8caef2139459cdfaef410fc582ee1dd4e9cbd2757855e450
+Unique events: 22 | Cases: 3
+
+case_3a91150ea33d4ac0697e | HIGH
+Actor: "avery.demo"
+Tenant: "harbor-lab"
+2026-01-14T09:40:00.000000Z to 2026-01-14T09:44:20.000000Z
+R01: Failure burst followed by successful authentication
+At least three failed authentications preceded success for the same tenant, actor and source IP within five minutes.
+Investigate: Confirm user activity and MFA context; inspect identity-provider records and the successful session before deciding on a response.
+Limits: Typing mistakes and approved tests can match. Distributed or slow attempts and attempts without a recorded success are missed.
+Evidence: ev_0e8dc4f475a9d6647aa7caddbdb89251f921e8f26690c86fee3bfb6bfe15e600, ev_69110019b0d130b6e2f5dc2ea8f140057eb25cc9ec891c390e9966b5a0b812b3, ev_ef391bdac3982028ae00cdfb163d821f12de41470b7f85463702c9d86a24985d, ev_450e95ed249aec5ad0653cf17c0d876e78c9b2bd13e90b7fb639481993833cf4, ev_ec92a30e92e6161aa69c818543e5d48ad950c6b91befe6a01de96f0b128ec239
+R02: Privileged role elevation after authentication
+A member or viewer became an admin or owner within ten minutes of a matching authenticated session and source IP.
+Investigate: Check the approved access request, granting identity, session records and role audit trail; verify whether the change was expected.
+Limits: Planned onboarding can match. Missing session IDs, changing IPs, custom role names and admin-to-owner transitions are outside this rule.
+Evidence: ev_ec92a30e92e6161aa69c818543e5d48ad950c6b91befe6a01de96f0b128ec239, ev_a89577c0ddd1dc66ab2b511b5f5466d1acd31bd1a5f784f0b3022b1228c52431
+R04: Restricted records returned outside policy
+A matching authenticated session accessed restricted data marked unauthorized and returned at least one record within ten minutes.
+Investigate: Verify the policy decision, resource classification and actual returned-record count against the original access audit; confirm approved exceptions.
+Limits: Incorrect policy labels can match. Zero-record denials, unknown authorization, missing sessions and unclassified resources are not covered.
+Evidence: ev_ec92a30e92e6161aa69c818543e5d48ad950c6b91befe6a01de96f0b128ec239, ev_ad3ae34f4505ac186145fff776a4846360effbae93a8d4a2fe58ddc34567f672
+
+case_4d32dfdacb03f2e728b6 | HIGH
+Actor: "ellis.demo"
+Tenant: "harbor-lab"
+2026-01-14T09:45:50.000000Z to 2026-01-14T09:48:00.000000Z
+R01: Failure burst followed by successful authentication
+At least three failed authentications preceded success for the same tenant, actor and source IP within five minutes.
+Investigate: Confirm user activity and MFA context; inspect identity-provider records and the successful session before deciding on a response.
+Limits: Typing mistakes and approved tests can match. Distributed or slow attempts and attempts without a recorded success are missed.
+Evidence: ev_a939dcd2afc844add13cb37ae6c021ce53801969fec86bad37c17ba108ade5a9, ev_d4d130c5b17d64b20079f2f22ac5cced512c9540ef121270cb372e0d04a877e4, ev_263ed22545f5c01edeea5c476ed2c29f28e89bed83ef816bd9161088e4532acb, ev_ff7b2e9c93b5e7079c723ae777f79ec00d5d91bba03470eb1706c15dac7e6759
+
+case_d829158f0fdd98a50c3f | MEDIUM
+Actor: "build-worker.demo"
+Tenant: "harbor-lab"
+2026-01-14T09:41:40.000000Z to 2026-01-14T09:44:50.000000Z
+R03: Token moved from expected to unexpected source
+The same token reference was used from an expected source, then from a different source marked unexpected within ten minutes.
+Investigate: Verify the source-policy annotation and deployment changes; review token-owner and service audit records. Never paste an actual token secret.
+Limits: NAT, failover and deployments can match. This relies on supplied expected_source labels; it does not learn a network baseline or prove token theft.
+Evidence: ev_fda63d98ed56f408d384f6edc034269e84d56735e340ed40c6dd11eb79247d18, ev_a41cd13a82f56ce8bcbcf780594eb80a3b86b4d5df645b6e64b112d0ea87c1ab
+
+SOURCE EVIDENCE (NORMALIZED)
+ev_0e8dc4f475a9d6647aa7caddbdb89251f921e8f26690c86fee3bfb6bfe15e600 | lines 1
+{"actor": "avery.demo", "source_ip": "192.0.2.41", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:40:00.000000Z", "type": "auth_failure"}
+ev_914adf24d1ae9a55537056a63f2ab281b927ff2d77c82635dea9dc8b0fbd6f7e | lines 3
+{"actor": "avery.demo", "source_ip": "192.0.2.41", "tenant": "meadow-lab", "timestamp": "2026-01-14T09:40:15.000000Z", "type": "auth_failure"}
+ev_a33cad88ec3cb14c93aea6c2766a101eccbbb5e45ef62287ed4042e7b0d3fc50 | lines 2
+{"actor": "riley.demo", "session": "session-r", "source_ip": "192.0.2.18", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:40:15.000000Z", "type": "auth_success"}
+ev_927472060688e212318188b9ebeb6c5f81b094169a22c2e666b23ec0f33829e1 | lines 4
+{"actor": "service-demo", "expected_source": true, "source_ip": "198.51.100.44", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:40:30.000000Z", "token_id": "token-ref-clean", "type": "token_use"}
+ev_69110019b0d130b6e2f5dc2ea8f140057eb25cc9ec891c390e9966b5a0b812b3 | lines 5
+{"actor": "avery.demo", "source_ip": "192.0.2.41", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:40:45.000000Z", "type": "auth_failure"}
+ev_ef1048fe4c170eae1c3a4a141d42e741efae971973d735528f5a647ce80f7870 | lines 6
+{"actor": "riley.demo", "authorized": true, "classification": "public", "records": 20, "resource": "public-catalog", "session": "session-r", "source_ip": "192.0.2.18", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:41:10.000000Z", "type": "data_access"}
+ev_ef391bdac3982028ae00cdfb163d821f12de41470b7f85463702c9d86a24985d | lines 7
+{"actor": "avery.demo", "source_ip": "192.0.2.41", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:41:30.000000Z", "type": "auth_failure"}
+ev_fda63d98ed56f408d384f6edc034269e84d56735e340ed40c6dd11eb79247d18 | lines 8
+{"actor": "build-worker.demo", "expected_source": true, "source_ip": "198.51.100.8", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:41:40.000000Z", "token_id": "token-ref-build-04", "type": "token_use"}
+ev_450e95ed249aec5ad0653cf17c0d876e78c9b2bd13e90b7fb639481993833cf4 | lines 9
+{"actor": "avery.demo", "source_ip": "192.0.2.41", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:42:00.000000Z", "type": "auth_failure"}
+ev_1b671c308edcdb74f6233f84408d2fbabc71c838f607eb38177324b856e13296 | lines 10
+{"actor": "service-demo", "expected_source": true, "source_ip": "198.51.100.44", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:42:20.000000Z", "token_id": "token-ref-clean", "type": "token_use"}
+ev_ec92a30e92e6161aa69c818543e5d48ad950c6b91befe6a01de96f0b128ec239 | lines 11
+{"actor": "avery.demo", "session": "session-a", "source_ip": "192.0.2.41", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:42:25.000000Z", "type": "auth_success"}
+ev_a89577c0ddd1dc66ab2b511b5f5466d1acd31bd1a5f784f0b3022b1228c52431 | lines 12
+{"actor": "avery.demo", "new_role": "admin", "old_role": "member", "session": "session-a", "source_ip": "192.0.2.41", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:43:25.000000Z", "type": "role_change"}
+ev_ad3ae34f4505ac186145fff776a4846360effbae93a8d4a2fe58ddc34567f672 | lines 13
+{"actor": "avery.demo", "authorized": false, "classification": "restricted", "records": 84, "resource": "synthetic-customer-export", "session": "session-a", "source_ip": "192.0.2.41", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:44:20.000000Z", "type": "data_access"}
+ev_a41cd13a82f56ce8bcbcf780594eb80a3b86b4d5df645b6e64b112d0ea87c1ab | lines 14
+{"actor": "build-worker.demo", "expected_source": false, "source_ip": "203.0.113.26", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:44:50.000000Z", "token_id": "token-ref-build-04", "type": "token_use"}
+ev_19aca174540848ca6de03f49c4453668bc9f9fed3ac8334c976cbeb3559866e8 | lines 15
+{"actor": "riley.demo", "authorized": false, "classification": "restricted", "records": 0, "resource": "restricted-test", "session": "session-r", "source_ip": "192.0.2.18", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:45:10.000000Z", "type": "data_access"}
+ev_a939dcd2afc844add13cb37ae6c021ce53801969fec86bad37c17ba108ade5a9 | lines 16
+{"actor": "ellis.demo", "source_ip": "203.0.113.70", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:45:50.000000Z", "type": "auth_failure"}
+ev_d4d130c5b17d64b20079f2f22ac5cced512c9540ef121270cb372e0d04a877e4 | lines 17
+{"actor": "ellis.demo", "source_ip": "203.0.113.70", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:46:30.000000Z", "type": "auth_failure"}
+ev_263ed22545f5c01edeea5c476ed2c29f28e89bed83ef816bd9161088e4532acb | lines 18
+{"actor": "ellis.demo", "source_ip": "203.0.113.70", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:47:10.000000Z", "type": "auth_failure"}
+ev_ff7b2e9c93b5e7079c723ae777f79ec00d5d91bba03470eb1706c15dac7e6759 | lines 19
+{"actor": "ellis.demo", "session": "session-e", "source_ip": "203.0.113.70", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:48:00.000000Z", "type": "auth_success"}
+ev_1fb7cb4ca1c81ad2c59c77ea3120b89bef0aebe197d3f3315505cc9e13c04aa4 | lines 20
+{"actor": "riley.demo", "new_role": "member", "old_role": "viewer", "session": "session-r", "source_ip": "192.0.2.18", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:48:20.000000Z", "type": "role_change"}
+ev_6bbbcf8016af6bbd0ac4b639e8ab9db8dc2982adab3fe0abc691c2a0689b4a77 | lines 21
+{"actor": "avery.demo", "session": "session-a2", "source_ip": "192.0.2.41", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:50:00.000000Z", "type": "auth_success"}
+ev_36547a51f6c875d956a6e38b0664cf6e100f35e456b9b36958242b9b238efd0f | lines 22
+{"actor": "avery.demo", "authorized": true, "classification": "restricted", "records": 10, "resource": "approved-test", "session": "session-a2", "source_ip": "192.0.2.41", "tenant": "harbor-lab", "timestamp": "2026-01-14T09:51:40.000000Z", "type": "data_access"}
